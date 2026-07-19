@@ -1,6 +1,6 @@
 # 🛡️ ReviewShield
 
-> **AI-Powered Review Management System** - Automate Customer Reviews & Filter Spam
+> **Review Management System** - Automate Customer Reviews & Filter Spam
 
 ## 📌 About The Project
 
