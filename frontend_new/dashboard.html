@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ReviewShield</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f1f5f9;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .logo i {
+            color: #2563eb;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 40px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .iframe-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+
+        .admin-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-shield"></i> ReviewShield
+        </div>
+        <div class="user-info">
+            <span class="user-name" id="userName"></span>
+            <span id="userRole"></span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>Welcome back, <span id="welcomeName"></span>! 👋</h1>
+            <p>Manage your reviews with AI-powered spam detection.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalReviews">0</div>
+                <div>Total Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="verifiedReviews">0</div>
+                <div>Verified Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="spamReviews">0</div>
+                <div>Spam Detected</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgRating">0</div>
+                <div>Average Rating</div>
+            </div>
+        </div>
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-number" id="totalRequests">0</div>
+        <div>Total Requests</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-number" id="pendingRequests">0</div>
+        <div>Pending Requests</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-number" id="sentRequests">0</div>
+        <div>Sent Requests</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-number" id="completedRequests">0</div>
+        <div>Completed Requests</div>
+    </div>
+
+</div>
+        <!-- <div class="iframe-container">
+            <iframe src="http://localhost:8001/admin/dashboard"></iframe>
+        </div> -->
+<!-- <div class="iframe-container">
+    <h2 style="padding:20px;">Recent Reviews</h2>
+
+    <div id="reviewsContainer" style="padding:20px;">
+        Loading reviews...
+    </div>
+</div> -->
+<div class="iframe-container">
+
+    <h2 style="padding:20px;">Send Review Request</h2>
+
+    <div style="padding:20px;">
+
+        <input
+            id="customerName"
+            type="text"
+            placeholder="Customer Name"
+            style="width:100%;padding:10px;margin-bottom:10px;"
+        >
+
+        <input
+            id="customerEmail"
+            type="email"
+            placeholder="Customer Email"
+            style="width:100%;padding:10px;margin-bottom:10px;"
+        >
+
+        <input
+            id="orderId"
+            type="text"
+            placeholder="Order ID"
+            style="width:100%;padding:10px;margin-bottom:10px;"
+        >
+
+        <input
+            id="productName"
+            type="text"
+            placeholder="Product Name"
+            style="width:100%;padding:10px;margin-bottom:10px;"
+        >
+
+        <button
+            onclick="sendReviewRequest()"
+            style="
+                background:#2563eb;
+                color:white;
+                padding:12px 20px;
+                border:none;
+                border-radius:8px;
+                cursor:pointer;
+            ">
+            Send Email
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="iframe-container">
+
+    <h2 style="padding:20px;">Recent Reviews</h2>
+
+    <div id="reviewsContainer" style="padding:20px;">
+        Loading reviews...
+    </div>
+
+</div>
+    </div>
+
+    <script>
+        const API = "http://localhost:8001";
+
+        function checkAuth() {
+            const token = localStorage.getItem('authToken');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            document.getElementById('userName').textContent = user.username || user.email;
+            document.getElementById('welcomeName').textContent = user.full_name || user.username;
+            
+            if (user.role === 'admin') {
+                document.getElementById('userRole').innerHTML = '<span class="admin-badge">Admin</span>';
+            }
+            
+            return true;
+        }
+
+        async function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API}/api/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('totalReviews').textContent = stats.total_reviews || 0;
+                document.getElementById('verifiedReviews').textContent = stats.verified_reviews || 0;
+                document.getElementById('spamReviews').textContent = stats.spam_reviews || 0;
+                document.getElementById('avgRating').textContent = stats.average_rating || 0;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadRequestStats() {
+
+    try {
+
+        const response = await fetch(`${API}/api/review-request-stats`);
+
+        const stats = await response.json();
+
+        document.getElementById("totalRequests").textContent = stats.total;
+        document.getElementById("pendingRequests").textContent = stats.pending;
+        document.getElementById("sentRequests").textContent = stats.sent;
+        document.getElementById("completedRequests").textContent = stats.completed;
+
+    } catch (error) {
+
+        console.error("Error loading request stats:", error);
+
+    }
+
+}
+
+        async function loadReviews() {
+    try {
+
+        const response = await fetch(`${API}/api/reviews`);
+        const reviews = await response.json();
+
+        let html = "";
+
+        reviews.forEach(review => {
+
+            html += `
+                <div style="
+                    border:1px solid #ddd;
+                    padding:15px;
+                    margin-bottom:15px;
+                    border-radius:10px;
+                    background:white;
+                ">
+                    <h3>${review.customer_name}</h3>
+
+                    <p><strong>Rating:</strong> ⭐ ${review.rating}</p>
+
+                    <p>${review.review_text}</p>
+
+                    <p><strong>Status:</strong> ${review.status}</p>
+
+                    <p><strong>Sentiment:</strong> ${review.sentiment}</p>
+
+                    <p><strong>Spam:</strong> ${review.is_spam ? "Yes 🚩" : "No ✅"}</p>
+                </div>
+            `;
+
+        });
+
+        document.getElementById("reviewsContainer").innerHTML = html;
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+}
+
+async function sendReviewRequest() {
+
+    const customerName = document.getElementById("customerName").value;
+
+    const customerEmail = document.getElementById("customerEmail").value;
+
+    const orderId = document.getElementById("orderId").value;
+
+    const productName = document.getElementById("productName").value;
+
+    try {
+
+        const response = await fetch(`${API}/api/review-requests/create`, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                customer_name: customerName,
+
+                customer_email: customerEmail,
+
+                order_id: orderId,
+
+                product_name: productName
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            alert("Review Request Email Sent!");
+
+            loadRequestStats();
+
+            document.getElementById("customerName").value = "";
+            document.getElementById("customerEmail").value = "";
+            document.getElementById("orderId").value = "";
+            document.getElementById("productName").value = "";
+
+        } else {
+
+            alert(data.detail);
+
+        }
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+
+
+        checkAuth();
+        loadStats();
+        loadRequestStats();
+        loadReviews();
+
+setInterval(() => {
+
+    loadStats();
+ loadRequestStats();
+    loadReviews();
+
+}, 10000);
+       
+    </script>
+</body>
+</html>

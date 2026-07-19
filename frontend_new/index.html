@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReviewSheild</title>
+    <title>ReviewShield</title>
      <link rel="stylesheet" href="App.css">
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-     
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <header>
         <b> <i class="fa-solid fa-shield"></i>Review<span style="color:#2563eb;">Shield</span></b>
     <nav>
         <ul class="navbar">
-            <li>Home</li>
-            <li>About</li>
-            <li>How it Works</li>
-            <li>Reviews</li>
-            <li>Contact </li>
-            <li ><span style="color:white; background-color: #2563eb;padding: 8px; border: 2px; border-radius: 20px;"><i class="fa-solid fa-user"></i>Login</span></li>
+            <li data-page="home">Home</li>
+<li data-page="about">About</li>
+<li data-page="how">How it Works</li>
+<li data-page="reviews">Reviews</li>
+<li data-page="contact">Contact</li>
+ <li><a href="login.html" style="text-decoration: none; color: inherit;">Login</a></li>
         </ul>
     </nav>
 </header>
@@ -29,7 +28,7 @@
      <p id="about">Our system automatically requests reviews from your customers and users AI to detect and filter out fake or spam reviews</p>
     <br>
     <div class="button-container">
-    <button class="submit-btn">Submit Review -> </button>
+    <button class="submit-btn">Submit Review →</button>
     <button class="learn-btn">Learn More</button>
     </div>
     </div>
@@ -51,36 +50,29 @@
 <div class="form">
     <h3>Share Your Experience</h3> <p>We value your feedback. Please share your honest review.<p>
 </div>
-<form class="A">
+<form id="reviewForm">
    <label>Your Name</label><br>
-   <input type="text" placeholder="Your Name"><br><br>
+   <input type="text" id="customerName" placeholder="Your Name"><br><br>
  <label>Rating </label>
-  <label>  <input type="radio" name="rating">★ 
-    </label>
-    <label>
-    <input type="radio" name="rating">★★
-    </label>
-    <label>
-    <input type="radio" name="rating">★★★
-    </label>
-    <label>
-    <input type="radio" name="rating">★★★★ 
-    </label> 
-    <label>
-    <input type="radio" name="rating">★★★★★ 
-    </label>
- </form>
-  <form class="B">
+  <label><input type="radio" name="rating" value="1">★</label>
+  <label><input type="radio" name="rating" value="2">★★</label>
+  <label><input type="radio" name="rating" value="3">★★★</label>
+  <label><input type="radio" name="rating" value="4">★★★★</label> 
+  <label><input type="radio" name="rating" value="5">★★★★★</label>
+ 
+  <br>
+  <br> 
     <label>Email Address</label><br>
-   <input type="text" placeholder="Email Address"><br><br> 
+   <input type="email" id="customerEmail" placeholder="Email Address"><br><br> 
+  
    <label>Your Review </label><br>
-   <input type="text" placeholder="Your Review"><br> </form>
+   <input type="text" id="reviewText" placeholder="Your Review"><br> </form>
    <div>
    <button class="submit-review">Submit Review  <i class="fa-brands fa-telegram"></i></button> </div>
 </div>
     <footer>
         <div class="footer">
-      <div class="copyright">  <i class="fa-solid fa-copyright"></i>2026 ReviewSheild. All rights reserved.</div>
+      <div class="copyright">  <i class="fa-solid fa-copyright"></i>2026 ReviewShield. All rights reserved.</div>
        <div class="privacy"> Privacy Policy | Terms of Service | Contact Us </div>
        <div class="tags"><i class="fa-brands fa-linkedin"></i>      <i class="fa-brands fa-x-twitter"></i>  </div>
         </div>

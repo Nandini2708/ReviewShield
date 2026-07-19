@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Review Requests</title>
+    <style>
+        body { font-family: Arial; background: #f1f5f9; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { color: #1e293b; }
+        input { padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 8px; width: calc(25% - 12px); }
+        button { background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin: 5px; }
+        .btn-copy { background: #10b981; }
+        .btn-send { background: #f59e0b; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; }
+        .link-cell { max-width: 300px; word-break: break-all; font-size: 12px; color: #2563eb; }
+        .status-pending { background: #f59e0b; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .status-sent { background: #10b981; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .status-completed { background: #64748b; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; display: inline-block; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Review Requests Admin</h1>
+        
+        <div class="card">
+            <h3>➕ Create Auto Review Request</h3>
+            <input type="text" id="custName" placeholder="Customer Name" required>
+            <input type="email" id="custEmail" placeholder="Customer Email" required>
+            <input type="text" id="orderId" placeholder="Order ID (optional)">
+            <input type="text" id="product" placeholder="Product Name (optional)">
+            <br>
+            <button onclick="createRequest()">✨ Create Request</button>
+        </div>
+        
+        <div class="card">
+            <h3>📋 Review Requests</h3>
+            <div id="requestsList">Loading...</div>
+        </div>
+    </div>
+    
+    <script>
+        const API = "http://localhost:8001";
+        
+        // Toast notification
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Copy to clipboard function
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('✅ Link copied to clipboard!');
+            } catch (err) {
+                // Fallback method
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('✅ Link copied to clipboard!');
+            }
+        }
+        
+        async function createRequest() {
+            const custName = document.getElementById('custName').value.trim();
+            const custEmail = document.getElementById('custEmail').value.trim();
+            const orderId = document.getElementById('orderId').value.trim();
+            const product = document.getElementById('product').value.trim();
+            
+            if (!custName || !custEmail) {
+                showToast('❌ Please fill customer name and email', true);
+                return;
+            }
+            
+            const data = {
+                customer_name: custName,
+                customer_email: custEmail,
+                order_id: orderId,
+                product_name: product
+            };
+            
+            try {
+                const res = await fetch(`${API}/api/review-requests/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                
+                if (result.success) {
+                    // Show link in a dialog with copy button
+                    const userConfirmed = confirm(
+                        `✅ Request created successfully!\n\n📎 Review Link:\n${result.review_link}\n\nClick OK to copy link, Cancel to see in list`
+                    );
+                    
+                    if (userConfirmed) {
+                        await copyToClipboard(result.review_link);
+                    }
+                    
+                    loadRequests();
+                    
+                    // Clear form
+                    document.getElementById('custName').value = '';
+                    document.getElementById('custEmail').value = '';
+                    document.getElementById('orderId').value = '';
+                    document.getElementById('product').value = '';
+                } else {
+                    showToast('❌ Error: ' + (result.error || 'Something went wrong'), true);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error creating request', true);
+            }
+        }
+        
+        async function sendRequest(token) {
+            try {
+                const res = await fetch(`${API}/api/review-requests/send/${token}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await res.json();
+                
+                if (result.success) {
+                    showToast(`✅ Request sent to ${result.to_email}`);
+                    loadRequests();
+                } else {
+                    showToast('❌ Error: ' + (result.error || 'Failed to send'), true);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error sending request', true);
+            }
+        }
+        
+        async function loadRequests() {
+            try {
+                const res = await fetch(`${API}/api/review-requests/pending`);
+                const requests = await res.json();
+                
+                if (!requests || requests.length === 0) {
+                    document.getElementById('requestsList').innerHTML = '<p>✨ No pending requests. Create one above!</p>';
+                    return;
+                }
+                
+                let html = `<table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Product</th>
+                            <th>Status</th>
+                            <th>Review Link</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                requests.forEach(r => {
+                    const reviewLink = `${API}/review/${r.token}`;
+                    html += `
+                        <tr>
+                            <td><strong>${r.customer_name}</strong></td>
+                            <td>${r.customer_email}</td>
+                            <td>${r.product_name || '-'}</td>
+                            <td><span class="status-${r.status}">${r.status}</span></td>
+                            <td class="link-cell">
+                                <small>${reviewLink}</small>
+                                <button onclick="copyToClipboard('${reviewLink}')" style="background:#10b981; padding:4px 8px; font-size:11px; margin-left:5px;">📋 Copy</button>
+                            </td>
+                            <td>
+                                ${r.status === 'pending' ? 
+                                    `<button class="btn-send" onclick="sendRequest('${r.token}')" style="background:#10b981; padding:6px 12px; font-size:12px;">📧 Send</button>` : 
+                                    '✅ Sent'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></div>`;
+                document.getElementById('requestsList').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                document.getElementById('requestsList').innerHTML = '<p>❌ Error loading requests. Make sure backend is running.</p>';
+            }
+        }
+        
+        // Load on page load
+        loadRequests();
+        
+        // Auto refresh every 10 seconds
+        setInterval(loadRequests, 10000);
+    </script>
+</body>
+</html>
